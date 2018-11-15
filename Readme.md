@@ -1,3 +1,9 @@
+<!-- default file list -->
+*Files to look at*:
+
+* [GridControlSpellChecker.cs](./CS/WpfApplication1/GridControlSpellChecker.cs) (VB: [GridControlSpellChecker.vb](./VB/WpfApplication1/GridControlSpellChecker.vb))
+* [MainWindow.xaml](./CS/WpfApplication1/MainWindow.xaml) (VB: [MainWindow.xaml](./VB/WpfApplication1/MainWindow.xaml))
+<!-- default file list end -->
 # How to check spelling of an active grid cell
 
 
