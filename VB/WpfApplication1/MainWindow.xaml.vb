@@ -5,14 +5,14 @@ Imports System
 Imports System.Windows
 
 Namespace WpfApplication1
-    Partial Public Class MainWindow
-        Inherits Window
+	Partial Public Class MainWindow
+		Inherits Window
 
-        Public Sub New()
-            DataContext = New ViewModel()
-            InitializeComponent()
-        End Sub
+		Public Sub New()
+			DataContext = New ViewModel()
+			InitializeComponent()
+		End Sub
 
 
-    End Class
+	End Class
 End Namespace
