@@ -1,175 +1,186 @@
-﻿Imports System
+Imports System
 Imports System.Collections
 Imports System.Collections.Generic
 Imports System.Globalization
 Imports System.IO
 Imports System.Reflection
 Imports System.Text
-Imports System.Windows
 Imports System.Windows.Controls
 Imports System.Windows.Data
 Imports System.Windows.Media
 Imports System.Windows.Media.Imaging
 Imports System.Xml.Serialization
-Imports DevExpress.Utils
-Imports DevExpress.Utils.Zip
-Imports DevExpress.Xpf.Core
-Imports DevExpress.Xpf.SpellChecker
-Imports DevExpress.XtraRichEdit
-Imports DevExpress.XtraSpellChecker
 
 Namespace WpfApplication1
+
     Public Class Employees
         Implements System.ComponentModel.INotifyPropertyChanged
 
-        Public Property EmployeeID() As Integer
-        Public Property LastName() As String
-        Public Property FirstName() As String
-        Public Property Title() As String
-        Public Property TitleOfCourtesy() As String
-        Public Property BirthDate() As Date
-        Public Property HireDate() As Date
-        Public Property Address() As String
-        Public Property City() As String
-        Public Property Region() As String
-        Public Property PostalCode() As String
-        Public Property Country() As String
-        Public Property HomePhone() As String
-        Public Property Extension() As String
-        Public Property Salary() As Double
-        Public Property OnVacation() As Boolean
-        Public Property Photo() As Byte()
-        Public Property Notes() As String
-        Public Property ReportsTo() As Integer
+        Public Property EmployeeID As Integer
 
-        #Region "INotifyPropertyChanged Members"
+        Public Property LastName As String
+
+        Public Property FirstName As String
+
+        Public Property Title As String
+
+        Public Property TitleOfCourtesy As String
+
+        Public Property BirthDate As Date
+
+        Public Property HireDate As Date
+
+        Public Property Address As String
+
+        Public Property City As String
+
+        Public Property Region As String
+
+        Public Property PostalCode As String
+
+        Public Property Country As String
+
+        Public Property HomePhone As String
+
+        Public Property Extension As String
+
+        Public Property Salary As Double
+
+        Public Property OnVacation As Boolean
+
+        Public Property Photo As Byte()
+
+        Public Property Notes As String
+
+        Public Property ReportsTo As Integer
+
+'#Region "INotifyPropertyChanged Members"
         Private onPropertyChanged As System.ComponentModel.PropertyChangedEventHandler
-        Public Custom Event PropertyChanged As System.ComponentModel.PropertyChangedEventHandler Implements System.ComponentModel.INotifyPropertyChanged.PropertyChanged
+
+        Public Custom Event PropertyChanged As System.ComponentModel.PropertyChangedEventHandler Implements ComponentModel.INotifyPropertyChanged.PropertyChanged
             AddHandler(ByVal value As System.ComponentModel.PropertyChangedEventHandler)
-                onPropertyChanged = DirectCast(System.Delegate.Combine(onPropertyChanged, value), System.ComponentModel.PropertyChangedEventHandler)
+                onPropertyChanged = [Delegate].Combine(onPropertyChanged, value)
             End AddHandler
+
             RemoveHandler(ByVal value As System.ComponentModel.PropertyChangedEventHandler)
-                onPropertyChanged = DirectCast(System.Delegate.Remove(onPropertyChanged, value), System.ComponentModel.PropertyChangedEventHandler)
+                onPropertyChanged = [Delegate].Remove(onPropertyChanged, value)
             End RemoveHandler
-            RaiseEvent(ByVal sender As System.Object, ByVal e As System.ComponentModel.PropertyChangedEventArgs)
+
+            RaiseEvent(ByVal sender As Object, ByVal e As ComponentModel.PropertyChangedEventArgs)
                 If onPropertyChanged IsNot Nothing Then
-                    For Each d As System.ComponentModel.PropertyChangedEventHandler In onPropertyChanged.GetInvocationList()
-                        d.Invoke(sender, e)
-                    Next d
+                    onPropertyChanged(sender, e)
                 End If
             End RaiseEvent
         End Event
+
         Private Sub RaisePropertyChanged(ByVal propertyName As String)
             Dim handler As System.ComponentModel.PropertyChangedEventHandler = onPropertyChanged
-            If handler IsNot Nothing Then
-                handler(Me, New System.ComponentModel.PropertyChangedEventArgs(propertyName))
-            End If
+            If handler IsNot Nothing Then handler(Me, New System.ComponentModel.PropertyChangedEventArgs(propertyName))
         End Sub
-        #End Region
+'#End Region
     End Class
 
-    Public NotInheritable Class EmployeesData
+    Public Module EmployeesData
 
-        Private Sub New()
-        End Sub
+        Private dataSourceField As IList
 
-        Private Shared dataSource_Renamed As IList
-
-        Public Shared ReadOnly Property DataSource() As IList
+        Public ReadOnly Property DataSource As IList
             Get
-                If dataSource_Renamed Is Nothing Then
-                    dataSource_Renamed = GetDataSource()
-                    DoMistakes(dataSource_Renamed)
+                If dataSourceField Is Nothing Then
+                    dataSourceField = GetDataSource()
+                    DoMistakes(dataSourceField)
                 End If
-                Return dataSource_Renamed
+
+                Return dataSourceField
             End Get
         End Property
-        Private Shared Function GetDataSource() As IList
-            Dim s As New XmlSerializer(GetType(List(Of Employees)), New XmlRootAttribute("NewDataSet"))
-            Dim stream As Stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("nwind.xml")
-            Return DirectCast(s.Deserialize(stream), IList)
+
+        Private Function GetDataSource() As IList
+            Dim s As XmlSerializer = New XmlSerializer(GetType(List(Of Employees)), New XmlRootAttribute("NewDataSet"))
+            Dim stream As Stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("WpfApplication1.nwind.xml")
+            Return CType(s.Deserialize(stream), IList)
         End Function
 
-        Private Shared Sub DoMistakes(ByVal dataSet As IList)
+        Private Sub DoMistakes(ByVal dataSet As IList)
             For Each employee As Employees In dataSet
-                Dim text As New StringBuilder(employee.Notes)
+                Dim text As StringBuilder = New StringBuilder(employee.Notes)
                 Dim charSet As List(Of Char) = CreateCharSet(text)
-                Dim random As New Random(Environment.TickCount)
+                Dim random As Random = New Random(Environment.TickCount)
                 For i As Integer = text.Length - 1 To 0 Step -30
-                    If Not Char.IsLetter(text(i)) Then
-                        Continue For
-                    End If
+                    If Not Char.IsLetter(text(i)) Then Continue For
                     Dim ch As Char = GetRandomChar(charSet)
-                    If Char.IsUpper(text(i)) Then
-                        ch = Char.ToUpper(ch)
-                    End If
+                    If Char.IsUpper(text(i)) Then ch = Char.ToUpper(ch)
                     If text(i) = ch Then
                         text.Remove(i, 1)
                     Else
                         text(i) = ch
                     End If
-                Next i
+                Next
+
                 employee.Notes = text.ToString()
-            Next employee
+            Next
         End Sub
-        Private Shared Function CreateCharSet(ByVal text As StringBuilder) As List(Of Char)
-            Dim result As New List(Of Char)()
+
+        Private Function CreateCharSet(ByVal text As StringBuilder) As List(Of Char)
+            Dim result As List(Of Char) = New List(Of Char)()
             Dim length As Integer = text.Length
             For i As Integer = 0 To length - 1
                 Dim ch As Char = text(i)
-                If Not Char.IsLetter(ch) Then
-                    Continue For
-                End If
+                If Not Char.IsLetter(ch) Then Continue For
                 ch = Char.ToLower(ch)
                 Dim index As Integer = result.BinarySearch(ch)
-                If index < 0 Then
-                    result.Insert(Not index, ch)
-                End If
-            Next i
+                If index < 0 Then result.Insert(Not index, ch)
+            Next
+
             Return result
         End Function
-        Private Shared Function GetRandomChar(ByVal charSet As List(Of Char)) As Char
-            Dim random As New Random(Environment.TickCount)
+
+        Private Function GetRandomChar(ByVal charSet As List(Of Char)) As Char
+            Dim random As Random = New Random(Environment.TickCount)
             Dim index As Integer = random.Next(0, charSet.Count - 1)
             Return charSet(index)
         End Function
-    End Class
+    End Module
+
     Public Class BitmapToBitmapSourceConverter
         Implements IValueConverter
 
-        #Region "IValueConverter Members"
-        Private Function IValueConverter_Convert(ByVal value As Object, ByVal targetType As Type, ByVal parameter As Object, ByVal culture As CultureInfo) As Object Implements IValueConverter.Convert
-            Return GetImageSource(DirectCast(value, Byte()))
+'#Region "IValueConverter Members"
+        Private Function Convert(ByVal value As Object, ByVal targetType As Type, ByVal parameter As Object, ByVal culture As CultureInfo) As Object Implements IValueConverter.Convert
+            Return GetImageSource(CType(value, Byte()))
         End Function
-        Public Shared Function GetImageSource(ByVal bytes() As Byte) As ImageSource
-            Dim bi As New BitmapImage()
+
+        Public Shared Function GetImageSource(ByVal bytes As Byte()) As ImageSource
+            Dim bi As BitmapImage = New BitmapImage()
             bi.BeginInit()
             Try
                 bi.StreamSource = New MemoryStream(bytes)
             Finally
                 bi.EndInit()
             End Try
+
             Return bi
         End Function
-        Private Function IValueConverter_ConvertBack(ByVal value As Object, ByVal targetType As Type, ByVal parameter As Object, ByVal culture As CultureInfo) As Object Implements IValueConverter.ConvertBack
+
+        Private Function ConvertBack(ByVal value As Object, ByVal targetType As Type, ByVal parameter As Object, ByVal culture As CultureInfo) As Object Implements IValueConverter.ConvertBack
             Throw New NotImplementedException()
         End Function
-        #End Region
+'#End Region
     End Class
+
     Public Class EmployeeToAddressStringConverter
         Implements IValueConverter
 
-        #Region "IValueConverter Members"
-        Private Function IValueConverter_Convert(ByVal value As Object, ByVal targetType As Type, ByVal parameter As Object, ByVal culture As CultureInfo) As Object Implements IValueConverter.Convert
+'#Region "IValueConverter Members"
+        Private Function Convert(ByVal value As Object, ByVal targetType As Type, ByVal parameter As Object, ByVal culture As CultureInfo) As Object Implements IValueConverter.Convert
             Dim employee As Employees = TryCast(value, Employees)
-            If employee Is Nothing OrElse GetType(String) IsNot targetType Then
-                Return Nothing
-            End If
+            If employee Is Nothing OrElse GetType(String) IsNot targetType Then Return Nothing
             Return String.Format("{0}, {1}, {2}", employee.Country, employee.City, employee.Address)
         End Function
-        Private Function IValueConverter_ConvertBack(ByVal value As Object, ByVal targetType As Type, ByVal parameter As Object, ByVal culture As CultureInfo) As Object Implements IValueConverter.ConvertBack
+
+        Private Function ConvertBack(ByVal value As Object, ByVal targetType As Type, ByVal parameter As Object, ByVal culture As CultureInfo) As Object Implements IValueConverter.ConvertBack
             Throw New NotImplementedException()
         End Function
-        #End Region
+'#End Region
     End Class
 End Namespace
